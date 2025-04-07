@@ -1,28 +1,29 @@
-chrome.browserAction.onClicked.addListener(function(tab) {
-  runScript();
+chrome.action.onClicked.addListener((tab) => {
+  runScript(tab);
 });
 
-chrome.commands.onCommand.addListener(function(command) {
+chrome.commands.onCommand.addListener((command, tab) => {
   if (command === "shorten") {
-    runScript();
+    runScript(tab);
   }
 });
 
-function runScript() {
-  chrome.tabs.executeScript({
-    file: 'contentScript.js'
+function runScript(tab) {
+  chrome.scripting.executeScript({
+    target: { tabId: tab.id },
+    files: ['contentScript.js']
   });
 }
 
 function setBadge(content, color) {
-  chrome.browserAction.setBadgeBackgroundColor({ color })
-  chrome.browserAction.setBadgeText ( { text: content } );
-  setTimeout(function() {
-    chrome.browserAction.setBadgeText ( { text: "" } );
-  }, 3000)
+  chrome.action.setBadgeBackgroundColor({ color });
+  chrome.action.setBadgeText({ text: content });
+  setTimeout(() => {
+    chrome.action.setBadgeText({ text: "" });
+  }, 3000);
 }
 
-chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.success) {
     setBadge("✔️", '#36ba42');
   } else {
